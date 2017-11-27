@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+    <Button
+        android:id="@+id/ThreadView_commentSender"
+        android:layout_height="wrap_content"
+        android:text="전송"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentRight="true"
+        android:layout_width="wrap_content" />
+    <EditText
+        android:id="@+id/ThreadView_commentInput"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentLeft="true"
+        android:layout_width="wrap_content"
+        android:layout_toLeftOf="@id/ThreadView_commentSender"
+        android:background="@android:color/background_light"
+        android:layout_alignTop="@id/ThreadView_commentSender"
+        android:textColor="@android:color/black" />
+    <ListView
+        android:id="@+id/ThreadViewCommentList"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:layout_above="@id/ThreadView_commentInput" />
+</RelativeLayout>

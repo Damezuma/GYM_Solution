@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<GridLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:columnCount="2">
+    <EditText
+        android:inputType="textEmailAddress"
+        android:id="@+id/LoginDialog_email"
+        android:layout_column="1"
+        android:layout_row="0"
+        android:layout_width="match_parent" />
+    <TextView
+        android:text="ID"
+        android:id="@+id/textView1"
+        android:layout_row="0"
+        android:layout_column="0" />
+    <EditText
+        android:inputType="textPassword"
+        android:id="@+id/LoginDialog_password"
+        android:layout_row="1"
+        android:layout_column="1"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+    <TextView
+        android:text="Passwod"
+        android:id="@+id/textView2"
+        android:layout_column="0"
+        android:layout_row="1" />
+</GridLayout>

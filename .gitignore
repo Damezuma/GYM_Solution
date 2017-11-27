@@ -1,0 +1,13 @@
+﻿################################################################################
+# 이 .gitignore 파일은 Microsoft(R) Visual Studio에서 자동으로 만들어졌습니다.
+################################################################################
+
+/APILibaray/bin
+/APILibaray/obj
+/BoardApp/bin
+/BoardApp/obj
+/BoardWinApp/bin
+/BoardWinApp/obj
+/ClassLibrary1/obj
+/Graphview/bin
+/Graphview/obj
