@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
 using System.Net.Http;
+using System.Net;
 
 namespace APILibaray
 {
@@ -27,6 +28,81 @@ namespace APILibaray
         public String Nickname { get; set; }
         public String Email { get; set; }
         public String Password { get; set; }
+    }
+    public class CommentList
+    {
+        private String etag;
+        private String jsonResult;
+        private JsonSerializerSettings settings;
+        private Thread thread;
+        public CommentList(Thread thread)
+        {
+            this.thread = thread;
+            etag = null;
+            jsonResult = null;
+            settings = new JsonSerializerSettings
+            {
+                ContractResolver = new DefaultContractResolver
+                {
+                    NamingStrategy = new SnakeCaseNamingStrategy()
+                }
+            };
+        }
+        public Task<List<Comment>> Get()
+        {
+            return Task.Factory.StartNew<List<Comment>>(() =>
+            {
+                var url = new Uri($"https://board.hehehee.net/threads/{thread.Uid}/comments");
+
+                var request =
+                (System.Net.HttpWebRequest)System.Net.WebRequest.Create(url);
+                request.Accept = "application/json";
+                if (etag != null && this.jsonResult != null)
+                {
+                    request.Headers.Add("If-None-Match", etag);
+                }
+                System.Net.HttpWebResponse response = null;
+                try
+                {
+                    response = (System.Net.HttpWebResponse)request.GetResponse();
+
+                }
+                catch (WebException e)
+                {
+                    
+                    var res = e.Response as HttpWebResponse;
+                    if(res.StatusCode == HttpStatusCode.NotModified)
+                    {   
+                        return JsonConvert.DeserializeObject<List<Comment>>(jsonResult, settings);
+                    }
+                    else
+                    {
+                        Console.WriteLine(e);
+                        jsonResult = null;
+                        etag = null;
+                        return null;
+                    }
+                }
+                etag = response.Headers["ETag"];
+                var reader =
+                    new System.IO.StreamReader(response.GetResponseStream());
+                jsonResult = reader.ReadToEnd();
+                List<Comment> comments = null;
+                try
+                {
+                    comments =
+                    JsonConvert.DeserializeObject<List<Comment>>(jsonResult, settings);
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine(e);
+                    jsonResult = null;
+                    etag = null;
+                    return null;
+                }
+                return comments;
+            });
+        }
     }
     public class Comment
     {
@@ -53,6 +129,22 @@ namespace APILibaray
                 return s.StatusCode == System.Net.HttpStatusCode.OK;
             });
         }
+        public Task<bool> Delete(String token)
+        {
+            return Task.Factory.StartNew<bool>(() =>
+            {
+                HttpClient client = new HttpClient();
+                var body = new FormUrlEncodedContent(new Dictionary<String, String>(){ { "token", token } });
+                HttpRequestMessage request = new HttpRequestMessage
+                {
+                    Content = body,
+                    Method = HttpMethod.Delete,
+                    RequestUri = new Uri($"https://board.hehehee.net/comments/{this.Uid}")
+                };
+                var s = client.SendAsync(request); 
+                return s.Result.StatusCode == System.Net.HttpStatusCode.OK;
+            });
+        }
     }
 
     public class Thread
@@ -66,30 +158,41 @@ namespace APILibaray
         public User Opener { get; set; }
         public DateTime RecentUpdateDatetime { get; set; }
         public DateTime OpenDatetime { get; set; }
-        public Task<List<Comment>> GetComment()
+        public Task<bool> Delete(String token)
         {
-            return Task.Factory.StartNew<List<Comment>>(() =>
+            return Task.Factory.StartNew<bool>(() =>
             {
-                var url = new Uri($"https://board.hehehee.net/threads/{this.Uid}/comments");
-
-                var request =
-                (System.Net.HttpWebRequest)System.Net.WebRequest.Create(url);
-                request.Accept = "application/json";
-                var response =
-                    (System.Net.HttpWebResponse)request.GetResponse();
-                var reader =
-                    new System.IO.StreamReader(response.GetResponseStream());
-                var setting = new JsonSerializerSettings
+                HttpClient client = new HttpClient();
+                var body = new FormUrlEncodedContent(new Dictionary<String, String>() { { "token", token } });
+                HttpRequestMessage request = new HttpRequestMessage
                 {
-                    ContractResolver = new DefaultContractResolver
-                    {
-                        NamingStrategy = new SnakeCaseNamingStrategy()
-                    }
+                    Content = body,
+                    Method = HttpMethod.Delete,
+                    RequestUri = new Uri($"https://board.hehehee.net/threads/{this.Uid}")
                 };
-                var text = reader.ReadToEnd();
-                List<Comment> comments =
-                JsonConvert.DeserializeObject<List<Comment>>(text, setting);
-                return comments;
+                var s = client.SendAsync(request);
+                return s.Result.StatusCode == System.Net.HttpStatusCode.OK;
+            });
+        }
+        public Task<bool> Upload(String token, String tags)
+        {
+            return Task.Factory.StartNew<bool>(() =>
+            {
+                HttpClient client = new HttpClient();
+                var body = new FormUrlEncodedContent(new Dictionary<String, String>()
+                {
+                    { "token", token },
+                    { "subejct", Subject},
+                    { "tags", tags}
+                });
+                HttpRequestMessage request = new HttpRequestMessage
+                {
+                    Content = body,
+                    Method = HttpMethod.Post,
+                    RequestUri = new Uri($"https://board.hehehee.net/threads")
+                };
+                var s = client.SendAsync(request);
+                return s.Result.StatusCode == System.Net.HttpStatusCode.OK;
             });
         }
     }
@@ -164,7 +267,22 @@ namespace APILibaray
     }
     public class ThreadList
     {
-        public static Task<List<Thread>> Get(uint offset, uint count)
+       // private String etag;
+        //private String jsonResult;
+        private JsonSerializerSettings settings;
+        public ThreadList()
+        {
+           // etag = null;
+            //jsonResult = null;
+            settings = new JsonSerializerSettings
+            {
+                ContractResolver = new DefaultContractResolver
+                {
+                    NamingStrategy = new SnakeCaseNamingStrategy()
+                }
+            };
+        }
+        public Task<List<Thread>> Get(uint offset, uint count)
         {
             return Task.Factory.StartNew<List<Thread>>(() =>
             {
@@ -173,20 +291,35 @@ namespace APILibaray
                 var request =
                 (System.Net.HttpWebRequest)System.Net.WebRequest.Create(url);
                 request.Accept = "application/json";
-                    var response =
-                (System.Net.HttpWebResponse)request.GetResponse();
+                //if (etag != null && jsonResult != null)
+                //{
+                //    request.Headers.Add("If-None-Match", etag);
+                //}
+                System.Net.HttpWebResponse response = null;
+                try
+                {
+                    response = (System.Net.HttpWebResponse)request.GetResponse();
+                    
+                }
+                catch(WebException e)
+                {
+                    Console.WriteLine(e);
+                    return null;
+                }
                 var reader =
                     new System.IO.StreamReader(response.GetResponseStream());
-                var setting = new JsonSerializerSettings
+                var jsonResult = reader.ReadToEnd();
+                List<Thread> threads = null;
+                try
                 {
-                    ContractResolver = new DefaultContractResolver
-                    {
-                        NamingStrategy = new SnakeCaseNamingStrategy()
-                    }
-                };
-                var text = reader.ReadToEnd();
-                List<Thread> threads=
-                JsonConvert.DeserializeObject<List<Thread>>(text, setting);
+                    threads =
+                    JsonConvert.DeserializeObject<List<Thread>>(jsonResult, settings);
+                }
+                catch(Exception e)
+                {
+                    Console.WriteLine(e);
+                    return null;
+                }
                 return threads;
             });
         }

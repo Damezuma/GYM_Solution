@@ -22,12 +22,15 @@ namespace BoardApp
                     if(instance == null)
                     {
                         instance = new Singletone();
+                        instance.Comments = new Dictionary<uint, APILibaray.CommentList>();
                     }
                 }
                 return instance;
             }
         }
-        public List<APILibaray.Thread> ThreadList { get; set; }
+        public APILibaray.ThreadList ThreadList { get; set; }
+        public Dictionary<uint,APILibaray.CommentList> Comments { get; set; }
+        //public List<APILibaray.Thread> ThreadList { get; set; }
         public String Token { get; set; }
     }
 

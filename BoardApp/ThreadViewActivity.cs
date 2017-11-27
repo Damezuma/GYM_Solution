@@ -17,6 +17,7 @@ namespace BoardApp
     class CommentListAdapter : BaseAdapter<APILibaray.Comment>
     {
         private List<APILibaray.Comment> list;
+        
         private Activity activity;
         private Dictionary<String, Bitmap> gravatar;
         public CommentListAdapter(Activity activity, List<APILibaray.Comment> list, Dictionary<String, Bitmap> gravatar)
@@ -24,6 +25,11 @@ namespace BoardApp
             this.list = list;
             this.activity = activity;
             this.gravatar = gravatar;
+        }
+        public void SetList(List<APILibaray.Comment> list)
+        {
+            this.list = list;
+            
         }
         public override APILibaray.Comment this[int position] => list[position];
         public override int Count => list.Count;
@@ -50,6 +56,7 @@ namespace BoardApp
     class ThreadViewActivity : Activity
     {
         List<APILibaray.Comment> comments;
+        APILibaray.CommentList commentList;
         ListView commentListView;
         Dictionary<String, Bitmap> gravatar;
         Button sendButton;
@@ -85,16 +92,42 @@ namespace BoardApp
             comments = new List<APILibaray.Comment>();
             adapter = new CommentListAdapter(this, comments, gravatar);
             commentListView.Adapter = adapter;
-
+            commentListView.ItemLongClick += CommentListView_ItemLongClick;
             LoadComments();
+            
             // commentListView.Adapter.notifyDataSetInvalidated();
         }
-        private async void LoadComments()
+
+        private void CommentListView_ItemLongClick(object sender, AdapterView.ItemLongClickEventArgs e)
         {
-            var thread = new APILibaray.Thread() { Uid = (uint)uid };
-            comments.Clear();
-            comments.AddRange( await thread.GetComment());
-            
+            //throw new NotImplementedException();
+            var handler = new EventHandler<DialogClickEventArgs>(async delegate (object obj, DialogClickEventArgs args) {
+                if(args.Which == 0)
+                {
+                    var comment = this.comments[e.Position];
+                    var res = await comment.Delete(Singletone.Instance.Token);
+                    if(res)
+                    {
+                        await LoadComments();
+                        //adapter.NotifyDataSetInvalidated();
+                        commentListView.SetSelectionFromTop(comments.Count, commentListView.MaxScrollAmount);
+                    }
+                    else
+                    {
+                        new AlertDialog.Builder(this).SetMessage("권한이 없습니다.").SetPositiveButton("확인", delegate { }).Show();
+                    }
+                }
+            });
+
+            new AlertDialog.Builder(this).SetItems(new String[] { "삭제" },  handler).Show();
+        }
+
+        private async System.Threading.Tasks.Task LoadComments()
+        {
+            commentList =new APILibaray.CommentList(new APILibaray.Thread() { Uid = (uint)uid });
+            comments = await commentList.Get();
+            adapter.SetList(comments);
+
             var tasks =
                 new Dictionary<string, System.Threading.Tasks.Task<Bitmap>>();
 
@@ -134,7 +167,6 @@ namespace BoardApp
                     var bitmap = await pair.Value;
                     gravatar.Add(pair.Key, bitmap);
                 }
-                
             }
             adapter.NotifyDataSetChanged();
         }
@@ -145,7 +177,9 @@ namespace BoardApp
             if(a)
             {
                 commentEdit.Text = "";
-                LoadComments();
+                await LoadComments();
+                //adapter.NotifyDataSetInvalidated();
+                commentListView.SetSelectionFromTop(comments.Count, commentListView.MaxScrollAmount);
             }
         }
     }

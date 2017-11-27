@@ -8,43 +8,16 @@ using Android.Database;
 using Android.Views;
 using Android.Content;
 using Android.Runtime;
+using System.Threading.Tasks;
 
 namespace BoardApp
 {
-    /*
-    public class ThreadListAsync : AsyncTask<Void, Void, ThreadListResponse>
-    {
-        public delegate void OnComplete(List<APILibaray.Thread> list);
-        public OnComplete onComplete = null;
-        public ThreadListAsync(OnComplete onComplete)
-        {
-            this.onComplete = onComplete;
-        }
-
-        protected override ThreadListResponse RunInBackground(params Void[] @params)
-        {
-            var api = new APILibaray.ThreadListAPI();
-            api.ResponseType = ResponseType.Json;
-            if(api.Call() == ResponseCode.Ok)
-            {
-                return (ThreadListResponse)api.GetResponse();
-            }
-            return null;
-        }
-        protected override void OnPostExecute(ThreadListResponse result)
-        {
-            if(this.onComplete != null)
-            {
-                this.onComplete(result.Get());
-            }
-            //showDialog("Downloaded " + result + " bytes");
-        }
-    }
-    */
     [Activity(Label = "BoardApp")]
     public class MainActivity : Activity
     {
-        private ListView threadListView;
+        private ListView threadListView = null;
+        private List<APILibaray.Thread> list = null;
+        private ThreadListAdapter adapter = null;
         private class ThreadListAdapter : BaseAdapter<APILibaray.Thread>
         {
             private List<APILibaray.Thread> list;
@@ -54,13 +27,17 @@ namespace BoardApp
                 this.list = list;
                 this.activity = activity;
             }
-            public override APILibaray.Thread this[int position] => list[position];
-            public override int Count => list.Count;
+            public void SetList(List<APILibaray.Thread> list)
+            {
+                this.list = list;
+                NotifyDataSetChanged();
+            }
+            public override APILibaray.Thread this[int position] =>(list != null)? list[position]: null;
+            public override int Count => (list != null) ? list.Count : 0;
             public override long GetItemId(int position) => position;
 
             public override View GetView(int position, View convertView, ViewGroup parent)
             {
-                
                 View view = convertView; // re-use an existing view, if one is available
                 if (view == null) // otherwise create a new one
                     view = activity.LayoutInflater.Inflate(Resource.Layout.thread_list_item, null);
@@ -70,51 +47,81 @@ namespace BoardApp
                 return view;
             }
         }
-        protected async override  void OnCreate(Bundle savedInstanceState)
+        protected override  void OnCreate(Bundle savedInstanceState)
         {
             base.OnCreate(savedInstanceState);
-            if (Singletone.Instance.ThreadList == null)
-            {
-                StartActivity(typeof(SplashActivity));
-                SetContentView(Resource.Layout.Main);
-                this.threadListView =
-                    FindViewById<ListView>(Resource.Id.main_view_thread_list);
-                return;
-            }
-
             SetContentView(Resource.Layout.Main);
             this.threadListView =
                 FindViewById<ListView>(Resource.Id.main_view_thread_list);
             this.threadListView.ItemClick += ThreadListView_ItemClick;
+            this.threadListView.ItemLongClick += ThreadListView_ItemLongClick;
+           
+        }
+
+        private void ThreadListView_ItemLongClick(object sender, AdapterView.ItemLongClickEventArgs e)
+        {
+            var thread = this.list[e.Position];
+            AlertDialog dialog = null;
+            //throw new NotImplementedException();
+            var handler = new System.EventHandler<DialogClickEventArgs>(async delegate (object obj, DialogClickEventArgs args) {
+                if (args.Which == 0)
+                {
+                    
+                    var res = await thread.Delete(Singletone.Instance.Token);
+                    if (res)
+                    {
+                        await LoadThreadList();
+                        //adapter.NotifyDataSetInvalidated();
+
+                    }
+                    else
+                    {
+                        new AlertDialog.Builder(this).SetMessage("권한이 없습니다.").SetPositiveButton("확인", delegate { }).Show();
+                    }
+                }
+                else
+                {
+                    dialog.Dismiss();
+                }
+            });
+
+            dialog = new AlertDialog.Builder(this).SetTitle($"{thread.Subject} by {thread.Opener}를…").SetItems(new string[] { "삭제" ,"취소"}, handler).Show();
+        }
+        private async Task LoadThreadList()
+        {
             var progressDialog =
             new ProgressDialog(this);
             progressDialog.SetProgressStyle(ProgressDialogStyle.Spinner);
             progressDialog.SetMessage("스레드 목록을 가져오고 있습니다.");
             progressDialog.Show();
-            var list = await ThreadList.Get(0, 25);
-            Singletone.Instance.ThreadList = list;
-            var adapter =
-            new ThreadListAdapter(this, Singletone.Instance.ThreadList);
-            this.threadListView.Adapter =
-                adapter;
+            if (Singletone.Instance.ThreadList == null)
+            {
+                Singletone.Instance.ThreadList = new ThreadList();
+            }
+
+            list = await Singletone.Instance.ThreadList.Get(0, 25);
+            if (adapter == null)
+            {
+                adapter = new ThreadListAdapter(this, list);
+                this.threadListView.Adapter = adapter;
+            }
+            adapter.SetList(list);
             progressDialog.Dismiss();
         }
-
         private void ThreadListView_ItemClick(object sender, AdapterView.ItemClickEventArgs e)
         {
             //throw new System.NotImplementedException();
-            var item = Singletone.Instance.ThreadList[(int)e.Id];
+            var item = list[(int)e.Id];
             var intent = new Intent(this, typeof(ThreadViewActivity));
             intent.PutExtra("uid", item.Uid);
             intent.PutExtra("subject", item.Subject);
             StartActivity(intent);
-            
         }
 
-        protected override void OnResume()
+        protected async override void OnResume()
         {
             base.OnResume();
-            
+            await LoadThreadList();
         }
     }
 }
