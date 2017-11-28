@@ -109,19 +109,29 @@ namespace BoardApp
             {
                 Singletone.Instance.ThreadList = new ThreadList();
             }
-            if(task == null)
+            if(task != null)
             {
-                task = Singletone.Instance.ThreadList.Get(0, 25);
+                try
+                {
+                    task.Dispose();
+                }
+                catch(Exception e)
+                {
+                    e.PrintStackTrace();
+                }
             }
+            task = Singletone.Instance.ThreadList.Get(0, 25);
             list = await task;
-            task.Dispose();
             task = null;
             if (adapter == null)
             {
                 adapter = new ThreadListAdapter(this, list);
                 this.threadListView.Adapter = adapter;
             }
-            adapter.SetList(list);
+            else
+            {
+                adapter.SetList(list);
+            }
             progressDialog.Dismiss();
         }
         private void ThreadListView_ItemClick(object sender, AdapterView.ItemClickEventArgs e)
