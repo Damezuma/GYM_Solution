@@ -39,6 +39,7 @@ namespace APILibaray
         {
             this.thread = thread;
             etag = null;
+
             jsonResult = null;
             settings = new JsonSerializerSettings
             {
