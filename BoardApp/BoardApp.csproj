@@ -93,6 +93,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Singletone.cs" />
     <Compile Include="SplashActivity.cs" />
+    <Compile Include="ThreadOpenActivity.cs" />
     <Compile Include="ThreadViewActivity.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -149,6 +150,9 @@
   </ItemGroup>
   <ItemGroup>
     <AndroidResource Include="Resources\values\style.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <AndroidResource Include="Resources\menu\menu.xml" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\Xamarin\Android\Xamarin.Android.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

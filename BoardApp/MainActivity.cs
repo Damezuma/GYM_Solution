@@ -123,6 +123,26 @@ namespace BoardApp
             base.OnResume();
             await LoadThreadList();
         }
+        public override bool OnCreateOptionsMenu(IMenu menu)
+        {
+            MenuInflater inflater = this.MenuInflater;
+            inflater.Inflate(Resource.Menu.menu, menu);
+            //menu.FindItem(Resource.Id.ActionBar_createThread).
+            return base.OnCreateOptionsMenu(menu);
+        }
+        public override bool OnOptionsItemSelected(IMenuItem item)
+        {
+            // Handle presses on the action bar items
+            switch (item.ItemId)
+            {
+                case Resource.Id.ActionBar_createThread:
+                    //openSearch();
+                    StartActivity(typeof(ThreadOpenActivity));
+                    return true;
+                default:
+                    return base.OnOptionsItemSelected(item);
+            }
+        }
     }
 }
 
