@@ -52,7 +52,7 @@ namespace BoardApp
             return view;
         }
     }
-    [Activity(Label = "BoardApp")]
+    [Activity(Label = "스레드 생성")]
     class ThreadViewActivity : Activity
     {
         List<APILibaray.Comment> comments;
@@ -119,14 +119,22 @@ namespace BoardApp
                 }
             });
 
-            new AlertDialog.Builder(this).SetItems(new String[] { "삭제" },  handler).Show();
+            new AlertDialog.Builder(this).SetItems(new String[] { "삭제", "취소" },  handler).Show();
         }
 
         private async System.Threading.Tasks.Task LoadComments()
         {
+            var progressDialog =
+            new ProgressDialog(this);
+            progressDialog.SetProgressStyle(ProgressDialogStyle.Spinner);
+            progressDialog.SetMessage("스레드를 가져오고 있습니다.");
+            progressDialog.SetCancelable(false);
+            progressDialog.Show();
+
             commentList =new APILibaray.CommentList(new APILibaray.Thread() { Uid = (uint)uid });
             comments = await commentList.Get();
             adapter.SetList(comments);
+            progressDialog.Dismiss();
 
             var tasks =
                 new Dictionary<string, System.Threading.Tasks.Task<Bitmap>>();
@@ -169,6 +177,7 @@ namespace BoardApp
                 }
             }
             adapter.NotifyDataSetChanged();
+            
         }
         private async void SendButton_Click(object sender, EventArgs e)
         {

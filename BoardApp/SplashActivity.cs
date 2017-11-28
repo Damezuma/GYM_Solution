@@ -19,6 +19,11 @@ namespace BoardApp
         protected override void OnCreate(Bundle savedInstanceState)
         {
             base.OnCreate(savedInstanceState);
+            if(Singletone.Instance.Token != null)
+            {
+                StartActivity(new Intent(this, typeof(MainActivity)));
+                return;
+            }
             AlertDialog dialog = null;
             dialog=
             new AlertDialog.Builder(this)

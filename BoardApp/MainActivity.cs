@@ -12,12 +12,13 @@ using System.Threading.Tasks;
 
 namespace BoardApp
 {
-    [Activity(Label = "BoardApp")]
+    [Activity(Label = "스레드 목록")]
     public class MainActivity : Activity
     {
         private ListView threadListView = null;
         private List<APILibaray.Thread> list = null;
         private ThreadListAdapter adapter = null;
+        private Task<List<APILibaray.Thread>> task = null;
         private class ThreadListAdapter : BaseAdapter<APILibaray.Thread>
         {
             private List<APILibaray.Thread> list;
@@ -57,7 +58,15 @@ namespace BoardApp
             this.threadListView.ItemLongClick += ThreadListView_ItemLongClick;
            
         }
-
+        protected override void OnStop()
+        {
+            base.OnStop();
+            if(task != null)
+            {
+                task.Dispose();
+                task = null;
+            }
+        }
         private void ThreadListView_ItemLongClick(object sender, AdapterView.ItemLongClickEventArgs e)
         {
             var thread = this.list[e.Position];
@@ -87,19 +96,26 @@ namespace BoardApp
 
             dialog = new AlertDialog.Builder(this).SetTitle($"{thread.Subject} by {thread.Opener}를…").SetItems(new string[] { "삭제" ,"취소"}, handler).Show();
         }
+        
         private async Task LoadThreadList()
         {
             var progressDialog =
             new ProgressDialog(this);
             progressDialog.SetProgressStyle(ProgressDialogStyle.Spinner);
             progressDialog.SetMessage("스레드 목록을 가져오고 있습니다.");
+            progressDialog.SetCancelable(false);
             progressDialog.Show();
             if (Singletone.Instance.ThreadList == null)
             {
                 Singletone.Instance.ThreadList = new ThreadList();
             }
-
-            list = await Singletone.Instance.ThreadList.Get(0, 25);
+            if(task == null)
+            {
+                task = Singletone.Instance.ThreadList.Get(0, 25);
+            }
+            list = await task;
+            task.Dispose();
+            task = null;
             if (adapter == null)
             {
                 adapter = new ThreadListAdapter(this, list);

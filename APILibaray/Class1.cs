@@ -175,7 +175,7 @@ namespace APILibaray
                 return s.Result.StatusCode == System.Net.HttpStatusCode.OK;
             });
         }
-        public Task<bool> Upload(String token, String tags)
+        public Task<bool> Upload(String token, String content, String tags)
         {
             return Task.Factory.StartNew<bool>(() =>
             {
@@ -183,15 +183,18 @@ namespace APILibaray
                 var body = new FormUrlEncodedContent(new Dictionary<String, String>()
                 {
                     { "token", token },
-                    { "subejct", Subject},
-                    { "tags", tags}
+                    { "subject", Subject},
+                    { "tags", tags},
+                    {"comment", content }
                 });
                 HttpRequestMessage request = new HttpRequestMessage
                 {
                     Content = body,
                     Method = HttpMethod.Post,
-                    RequestUri = new Uri($"https://board.hehehee.net/threads")
+                    RequestUri = new Uri($"https://board.hehehee.net/threads"),
+                    
                 };
+                request.Headers.Add("Accept","application/json");
                 var s = client.SendAsync(request);
                 return s.Result.StatusCode == System.Net.HttpStatusCode.OK;
             });

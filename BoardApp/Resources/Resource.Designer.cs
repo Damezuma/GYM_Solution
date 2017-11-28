@@ -79,50 +79,71 @@ namespace BoardApp
 		public partial class Id
 		{
 			
-			// aapt resource value: 0x7f070002
-			public const int CommentListItemView_content = 2131165186;
+			// aapt resource value: 0x7f080015
+			public const int ActionBar_cancel = 2131230741;
 			
-			// aapt resource value: 0x7f070000
-			public const int CommentListItemView_gravater = 2131165184;
+			// aapt resource value: 0x7f080014
+			public const int ActionBar_commit = 2131230740;
 			
-			// aapt resource value: 0x7f070001
-			public const int CommentListItemView_writer = 2131165185;
+			// aapt resource value: 0x7f080012
+			public const int ActionBar_createThread = 2131230738;
 			
-			// aapt resource value: 0x7f070003
-			public const int CommentListItemView_writtenDatetime = 2131165187;
+			// aapt resource value: 0x7f080002
+			public const int CommentListItemView_content = 2131230722;
 			
-			// aapt resource value: 0x7f070004
-			public const int LoginDialog_email = 2131165188;
+			// aapt resource value: 0x7f080000
+			public const int CommentListItemView_gravater = 2131230720;
 			
-			// aapt resource value: 0x7f070006
-			public const int LoginDialog_password = 2131165190;
+			// aapt resource value: 0x7f080001
+			public const int CommentListItemView_writer = 2131230721;
 			
-			// aapt resource value: 0x7f07000e
-			public const int ThreadViewCommentList = 2131165198;
+			// aapt resource value: 0x7f080003
+			public const int CommentListItemView_writtenDatetime = 2131230723;
 			
-			// aapt resource value: 0x7f07000d
-			public const int ThreadView_commentInput = 2131165197;
+			// aapt resource value: 0x7f080004
+			public const int LoginDialog_email = 2131230724;
 			
-			// aapt resource value: 0x7f07000c
-			public const int ThreadView_commentSender = 2131165196;
+			// aapt resource value: 0x7f080006
+			public const int LoginDialog_password = 2131230726;
 			
-			// aapt resource value: 0x7f070008
-			public const int main_view_thread_list = 2131165192;
+			// aapt resource value: 0x7f08000e
+			public const int ThreadOpenActivity_comment = 2131230734;
 			
-			// aapt resource value: 0x7f070005
-			public const int textView1 = 2131165189;
+			// aapt resource value: 0x7f08000c
+			public const int ThreadOpenActivity_subject = 2131230732;
 			
-			// aapt resource value: 0x7f070007
-			public const int textView2 = 2131165191;
+			// aapt resource value: 0x7f08000d
+			public const int ThreadOpenActivity_tags = 2131230733;
 			
-			// aapt resource value: 0x7f07000a
-			public const int thread_list_item_opener = 2131165194;
+			// aapt resource value: 0x7f080011
+			public const int ThreadViewCommentList = 2131230737;
 			
-			// aapt resource value: 0x7f07000b
-			public const int thread_list_item_recent_update_datetime = 2131165195;
+			// aapt resource value: 0x7f080010
+			public const int ThreadView_commentInput = 2131230736;
 			
-			// aapt resource value: 0x7f070009
-			public const int thread_list_item_subject = 2131165193;
+			// aapt resource value: 0x7f08000f
+			public const int ThreadView_commentSender = 2131230735;
+			
+			// aapt resource value: 0x7f080013
+			public const int action_search = 2131230739;
+			
+			// aapt resource value: 0x7f080008
+			public const int main_view_thread_list = 2131230728;
+			
+			// aapt resource value: 0x7f080005
+			public const int textView1 = 2131230725;
+			
+			// aapt resource value: 0x7f080007
+			public const int textView2 = 2131230727;
+			
+			// aapt resource value: 0x7f08000a
+			public const int thread_list_item_opener = 2131230730;
+			
+			// aapt resource value: 0x7f08000b
+			public const int thread_list_item_recent_update_datetime = 2131230731;
+			
+			// aapt resource value: 0x7f080009
+			public const int thread_list_item_subject = 2131230729;
 			
 			static Id()
 			{
@@ -153,7 +174,10 @@ namespace BoardApp
 			public const int thread_list_item = 2130903044;
 			
 			// aapt resource value: 0x7f030005
-			public const int ThreadViewActivity = 2130903045;
+			public const int ThreadOpenActivity = 2130903045;
+			
+			// aapt resource value: 0x7f030006
+			public const int ThreadViewActivity = 2130903046;
 			
 			static Layout()
 			{
@@ -161,6 +185,25 @@ namespace BoardApp
 			}
 			
 			private Layout()
+			{
+			}
+		}
+		
+		public partial class Menu
+		{
+			
+			// aapt resource value: 0x7f070000
+			public const int menu = 2131165184;
+			
+			// aapt resource value: 0x7f070001
+			public const int ThreadOpenActivity_menu = 2131165185;
+			
+			static Menu()
+			{
+				global::Android.Runtime.ResourceIdManager.UpdateIdValues();
+			}
+			
+			private Menu()
 			{
 			}
 		}
