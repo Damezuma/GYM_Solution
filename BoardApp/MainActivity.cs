@@ -63,8 +63,22 @@ namespace BoardApp
             base.OnStop();
             if(task != null)
             {
-                task.Dispose();
-                task = null;
+                if(task.Status == TaskStatus.Running)
+                {
+                    try
+                    {
+                        task.Dispose();
+                    }
+                    catch (Exception e)
+                    {
+                        e.PrintStackTrace();
+                    }
+                    finally
+                    {
+                        task = null;
+                    }
+                }
+                
             }
         }
         private void ThreadListView_ItemLongClick(object sender, AdapterView.ItemLongClickEventArgs e)
@@ -85,6 +99,7 @@ namespace BoardApp
                     }
                     else
                     {
+                        
                         new AlertDialog.Builder(this).SetMessage("권한이 없습니다.").SetPositiveButton("확인", delegate { }).Show();
                     }
                 }
@@ -109,28 +124,33 @@ namespace BoardApp
             {
                 Singletone.Instance.ThreadList = new ThreadList();
             }
-            if(task != null)
+            var t = Singletone.Instance.ThreadList.Get(0, 25);
+            task = t;
+            var list = await task;
+            if(list == null)
             {
-                try
+                if(this.list == null)
                 {
-                    task.Dispose();
-                }
-                catch(Exception e)
-                {
-                    e.PrintStackTrace();
+                    new AlertDialog.Builder(this)
+                        .SetMessage("목록을 읽을 수 없습니다.")
+                        .SetNeutralButton("확인", delegate { })
+                        .Show();
+                    return;
                 }
             }
-            task = Singletone.Instance.ThreadList.Get(0, 25);
-            list = await task;
-            task = null;
+            else
+            {
+                this.list = list;
+            }
+
             if (adapter == null)
             {
-                adapter = new ThreadListAdapter(this, list);
+                adapter = new ThreadListAdapter(this, this.list);
                 this.threadListView.Adapter = adapter;
             }
             else
             {
-                adapter.SetList(list);
+                adapter.SetList(this.list);
             }
             progressDialog.Dismiss();
         }
