@@ -127,10 +127,12 @@ namespace BoardApp
             var t = Singletone.Instance.ThreadList.Get(0, 25);
             task = t;
             var list = await task;
-            if(list == null)
+            progressDialog.Dismiss();
+            if (list == null)
             {
                 if(this.list == null)
                 {
+                    
                     new AlertDialog.Builder(this)
                         .SetMessage("목록을 읽을 수 없습니다.")
                         .SetNeutralButton("확인", delegate { })
@@ -152,7 +154,7 @@ namespace BoardApp
             {
                 adapter.SetList(this.list);
             }
-            progressDialog.Dismiss();
+            
         }
         private void ThreadListView_ItemClick(object sender, AdapterView.ItemClickEventArgs e)
         {
